@@ -3,7 +3,7 @@ import css from './ImageGalleryItem.module.css';
 import PropTypes from 'prop-types';
 
 export const ImageGalleryItem = ({ photos, onClick, onClose }) => {
-  const [modal, setModal] = useState(null);
+  const [, setModal] = useState(null);
 
   return (
     <>
