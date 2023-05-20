@@ -4,6 +4,7 @@ import css from './ImageGallery.module.css';
 import { Modal } from 'components/Modal/Modal';
 import { Button } from 'components/Button/Button';
 import { Loader } from 'components/Loader/Loader';
+import { fetchImg } from 'components/fetchImg';
 import PropTypes from 'prop-types';
 
 export const ImageGallery = ({ photoName }) => {
@@ -13,6 +14,8 @@ export const ImageGallery = ({ photoName }) => {
   const [status, setStatus] = useState('idle');
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(null);
+
+
 
   const handleModal = value => {
     setModal(value);
@@ -30,41 +33,35 @@ export const ImageGallery = ({ photoName }) => {
     setPage(page + 1);
   };
 
-  const getImage = () => {
-    fetch(
-      `https://pixabay.com/api/?key=34821995-346cc43bb02fb642b37e66530&q=${photoName}&image_type=photo&orientation=horizontal&per_page=12&page=${page}`
-    )
-      .then(res => res.json())
-      .then(photos => {
-        if (photos.hits.length === 0) {
-          return setStatus('rejected');
-        }
+  const getImage = (photoName, page) => fetchImg(photoName, page).then(photos => {
+        if (photos.hits.length === 0) { return setStatus('rejected');}
 
         setPhoto(pre => pre.concat(photos.hits));
         setTotalPage(Math.ceil(photos.totalHits / 12));
         setStatus('resolved');
       });
-  };
+
 
   useEffect(() => {
-    if (!photoName) return;
+    if (!photoName) return
 
     setPhoto([]);
     setPage(1);
     setStatus('pending');
 
-    getImage();
+    getImage(photoName, 1);
   }, [photoName]);
 
   useEffect(() => {
     if (page === 1) return;
 
     setStatus('pending');
-    getImage();
+    getImage(photoName, page);
+    
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
-  if (status === 'pending' && photo.length === 0) {
-    return <Loader visible />;
+  if (status === 'pending' && photo.length === 0) { return <Loader visible />;
   }
 
   if (status === 'idle') {
@@ -103,9 +100,9 @@ export const ImageGallery = ({ photoName }) => {
       </div>
       {page < totalPage && <Button onClick={onBtnClick} />}
     </div>
-  );
-};
+  );}
+
 
 ImageGallery.propTypes = {
   photoName: PropTypes.string.isRequired,
-};
+}
